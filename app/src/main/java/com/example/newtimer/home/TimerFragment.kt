@@ -7,8 +7,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
 import com.example.newtimer.databinding.FragmentTimerBinding
-import com.example.newtimer.services.ForegroundService
+import com.example.newtimer.workmanager.CounterWorker
 
 class TimerFragment : Fragment() {
     private var _binding: FragmentTimerBinding? = null
@@ -16,6 +19,7 @@ class TimerFragment : Fragment() {
 
     private val requestPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) {}
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,20 +36,35 @@ class TimerFragment : Fragment() {
         initObservers()
 
         buttonsClicks()
-
     }
 
     private fun buttonsClicks() {
         binding.btnStart.setOnClickListener {
-            ForegroundService.startService(requireContext())
+            startWorkManager()
         }
         binding.btnStop.setOnClickListener {
-            ForegroundService.stopService(requireContext())
+            stopWorkManager()
         }
     }
 
+    private fun startWorkManager() {
+        stopWorkManager()
+        val workerManager = WorkManager.getInstance(requireContext())
+
+        val workerRequest = OneTimeWorkRequestBuilder<CounterWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .addTag("workerRequest")
+            .build()
+
+        workerManager.enqueue(workerRequest)
+    }
+
+    private fun stopWorkManager() {
+        WorkManager.getInstance(requireContext()).cancelAllWorkByTag("workerRequest")
+    }
+
     private fun initObservers() {
-        ForegroundService.getTime().observe(viewLifecycleOwner) {
+        CounterWorker.getTime().observe(viewLifecycleOwner) {
             binding.tvText.text = String.format("%s:%02d", "00", it)
             binding.progressBar.progress = it.toInt()
         }

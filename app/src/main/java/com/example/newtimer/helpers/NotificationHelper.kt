@@ -1,4 +1,4 @@
-package com.example.newtimer.services
+package com.example.newtimer.helpers
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -53,6 +53,11 @@ class NotificationHelper(private val context: Context) {
         text?.let {
             notificationBuilder.setContentText(it)
         }
+        notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
+    }
+    fun setWorkingIntent(intent: PendingIntent){
+        notificationBuilder.addAction(R.drawable.ic_launcher_foreground,"Cancel", intent)
+
         notificationManager.notify(NOTIFICATION_ID, notificationBuilder.build())
     }
 }

@@ -30,6 +30,9 @@
             android:foregroundServiceType="shortService"
             android:enabled="true"
             android:exported="false" />
+        <service
+            android:name="androidx.work.impl.foreground.SystemForegroundService"
+            android:foregroundServiceType="shortService"
+            tools:node="merge"/>
     </application>
-
 </manifest>

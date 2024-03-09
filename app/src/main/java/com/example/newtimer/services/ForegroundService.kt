@@ -8,7 +8,8 @@ import android.os.IBinder
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.newtimer.services.NotificationHelper.Companion.NOTIFICATION_ID
+import com.example.newtimer.helpers.NotificationHelper
+import com.example.newtimer.helpers.NotificationHelper.Companion.NOTIFICATION_ID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -51,13 +52,11 @@ class ForegroundService : Service(), CoroutineScope {
         countDownTimer = object : CountDownTimer(59000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 CoroutineScope(coroutineContext).launch {
-
                     elapsedTimeInSeconds++
 
                     elapsedTimeLiveData.postValue(elapsedTimeInSeconds)
 
                     notificationHelper.updateNotification(elapsedTimeInSeconds.toString())
-
                 }
             }
 
@@ -78,6 +77,7 @@ class ForegroundService : Service(), CoroutineScope {
 
     override fun onDestroy() {
         countDownTimer?.cancel()
+        countDownTimer = null
         super.onDestroy()
     }
 
